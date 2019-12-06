@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>catch number</title>
+    <link rel="stylesheet" href="css/index.css" type="text/css">
+    <link rel="stylesheet" href="css/bootstrap.min.css" type="text/css">
+    <script src="js/jquery-3.4.1.min.js"></script>
+    <script src="js/jquery.timer.min.js"></script>
+</head>
+<body>
+    <div id="title">数字追击小游戏</div>
+    <div id="main" class="row">
+        <div id="center" class="col-lg-6 col-lg-offset-3">
+            <div id="board">
+
+            </div>
+        </div>
+        <div id="right" class="col-lg-3">
+            <div id="version">
+                <input type="radio" class="version" name="version" value="0" checked> 简单版
+                <input type="radio" class="version" name="version" value="1"> 地狱版
+                <div id="instruction">
+                    <h3>说明</h3>
+                    <p>简单版:点击正确后方块底色会改变</p>
+                    <p>地狱版:点击正确后方块底色不会改变，请选手根据提示选择下一个方块</p>
+                </div>
+            </div>
+            <div id="process">
+                <span>当前进度:</span>
+                <div id="current"></div>
+            </div>
+            <div id="operation">
+                <div id="timer">
+                    <p>计时：</p>
+                    <strong id="minute">00分</strong>
+                    <strong id="second">00秒</strong>
+                    <div id="opt-btn">
+                        <button class="btn btn-info" id="start">开始</button>
+                        <button class="btn btn-success" id="renewal">重玩</button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</body>
+<script>
+    Array.prototype.shuffle = function() {
+      let arr = this;
+      for (let i = arr.length-1; i >=0; i--) {
+        let randomIndex = Math.floor(Math.random()*(i+1));
+        let itemValue = arr[randomIndex];
+        arr[randomIndex] = arr[i];
+        arr[i] = itemValue;
+        }
+      return arr;
+    }
+    function createBoard(col = 5){
+      let arr = [];
+      for(let i = 1;i<=col*col;i++){
+        arr.push(i)
+      }
+      arr.shuffle();
+
+      for(let i = 0;i<col*col;i++){
+        let item = "<div class='inner-block'>"+arr[i]+"</div>";
+        $('#board').append(item);
+      }
+    }
+
+
+
+    $(function () {
+      let col = 5;
+      let index = 1;
+      let start_flag = false;
+      let t;
+      let version = $('.version:checked').val();
+      createBoard(col);
+
+      $('.version').on('change',function () {
+        version=$(this).val();
+      })
+
+      $('#start').on('click',function () {
+        start_flag = true;
+        timer();
+        $(this).toggleClass('disabled');
+      })
+
+
+      $('.inner-block').on('click',function () {
+        if(!start_flag){
+          alert("请先点击开始按钮");
+          return;
+        }
+        let v = parseInt($(this).text());
+        if((v-index) === 0){
+          index++;
+          if(version == 0){
+            $(this).addClass('block-active');
+          }
+
+          $('#current').text(v);
+          if(v === col*col){
+            //结束计时
+            window.clearInterval(t);
+            alert('恭喜完成');
+            $('#start').removeClass('disabled');
+          }
+        }
+      })
+
+      $('#renewal').on('click',function () {
+        window.location.reload();
+      })
+
+      function timer() {
+        let time = 1;
+        t = window.setInterval(function () {
+          let minute,
+              second;//时间默认值
+
+          minute = Math.floor(time / 60);
+          second = Math.floor(time) - (minute * 60);
+
+          if (minute <= 9) minute = '0' + minute;
+          if (second <= 9) second = '0' + second;
+          $('#minute').html('<s></s>' + minute + '分');
+          $('#second').html('<s></s>' + second + '秒');
+          time++;
+        }, 1000);
+      }
+    })
+</script>
+</html>
